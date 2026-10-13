@@ -33,9 +33,11 @@
       </div>
     </header>
 
-    <!-- NAVBAR -->
-    <nav id="main-navbar" class="hidden bg-slate-900 border-b border-slate-800 px-3 sm:px-10 py-2.5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 text-white">
-      <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+    <!-- NAVBAR DENGAN INTEGRASI PROFIL GURU -->
+    <nav id="main-navbar" class="hidden bg-slate-900 border-b border-slate-800 px-3 sm:px-10 py-2.5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-white">
+      
+      <!-- NAVIGASI TAB UTAMA -->
+      <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto order-2 sm:order-1">
         <button id="nav-absensi" onclick="switchNav('absensi')" 
           class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5">
           <span>📝 Absensi</span>
@@ -45,9 +47,24 @@
           <span>📊 Rekap Bulanan</span>
         </button>
       </div>
-      <button onclick="logout()" class="w-full sm:w-auto text-xs font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-500/20 px-4 py-2 rounded-xl transition text-center">
-        🚪 Keluar
-      </button>
+
+      <!-- AREA PROFIL & AKSI GURU DI NAVBAR -->
+      <div class="flex items-center justify-between sm:justify-end gap-3 order-1 sm:order-2 border-b sm:border-b-0 border-slate-800 pb-2 sm:pb-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img id="foto-guru" src="" alt="Foto Guru" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-blue-500 shadow-md flex-shrink-0">
+          <div class="min-w-0">
+            <h3 id="nama-guru" class="font-bold text-slate-100 text-xs sm:text-sm truncate max-w-[130px] sm:max-w-[200px]"></h3>
+            <button type="button" onclick="bukaModalEditProfil()" class="text-[10px] text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1">
+              <span>✏️ Edit Profil</span>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="logout()" class="text-xs font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-500/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition flex-shrink-0">
+          🚪 Keluar
+        </button>
+      </div>
+
     </nav>
 
     <div class="p-3 sm:p-8 lg:p-10">
@@ -85,7 +102,7 @@
 
         <!-- FORM REGISTRASI -->
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-3.5 hidden">
-          <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Kode Guru</label><input type="text" id="reg-kodeguru" required placeholder="Contoh: G001" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm"></div>
+          <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Kode Guru Resmi</label><input type="text" id="reg-kodeguru" required placeholder="Contoh: G001" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm"></div>
           <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nama Lengkap & Gelar</label><input type="text" id="reg-nama" required placeholder="Contoh: Budi Santoso, S.Pd." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm"></div>
           
           <div>
@@ -99,7 +116,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Upload File Foto Profil</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Upload File Foto Profil </label>
             <input type="file" id="reg-file-foto" accept="image/png, image/jpeg, image/jpg" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-300 rounded-xl p-1 bg-white">
           </div>
 
@@ -111,20 +128,8 @@
 
       <!-- INPUT ABSENSI & JURNAL SECTION -->
       <section id="absensi-section" class="hidden space-y-4 sm:space-y-6 fade-in">
-        <div class="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-slate-50 border border-blue-200/80 rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-          <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-            <img id="foto-guru" src="" alt="Foto Guru" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-blue-600 shadow-md flex-shrink-0">
-            <div class="min-w-0 flex-1">
-              <span class="text-[9px] sm:text-[10px] bg-blue-600 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm inline-block">Guru Terautentikasi</span>
-              <h3 id="nama-guru" class="font-black text-slate-800 text-sm sm:text-lg mt-0.5 truncate"></h3>
-            </div>
-          </div>
-          <button type="button" onclick="bukaModalEditProfil()" class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-bold text-xs shadow-sm transition flex items-center gap-2">
-            ✏️ Edit Profil
-          </button>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+          
           <div class="lg:col-span-4 bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 space-y-4 sm:space-y-5 shadow-sm">
             <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider border-b border-slate-200 pb-2 flex items-center gap-2">
               <span>⚙️</span> Parameter Presensi
@@ -164,7 +169,7 @@
                 <input type="text" id="jurnal-materi" placeholder="Contoh: Bab 3 Algoritma" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-xs bg-white font-medium">
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan Kejadian Khusus </label>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan Kejadian Khusus</label>
                 <textarea id="jurnal-catatan" rows="2" placeholder="Contoh: Siswa antusias mengikuti praktikum" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-xs bg-white font-medium"></textarea>
               </div>
             </div>
@@ -195,7 +200,6 @@
               </div>
             </div>
 
-            <!-- TABEL PRESENSI UNTUK DESKTOP & MOBILE -->
             <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm bg-white">
               <table class="w-full text-left text-xs sm:text-sm">
                 <thead class="bg-slate-100/80 text-slate-600 font-bold text-[11px] sm:text-xs uppercase border-b border-slate-200">
@@ -320,7 +324,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Baru </label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password Baru</label>
           <input type="password" id="edit-password" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-xs sm:text-sm font-medium">
         </div>
       </div>
