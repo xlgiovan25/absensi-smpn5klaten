@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxF5O8xUD2FFwU5_IUbmPhLjY3WiCNBoAUEiC-g2UwhVkwcJbfpWPexOPH7rNQsJEAV/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBzH1lUn7UaA7UQOok--6r6HE3SKy6BDYdpUN28mpe-tnlTT-DBGZ1MxB6Dl5sF2Xy/exec";
 
 let currentGuru = null;
 let currentSiswaData = [];
