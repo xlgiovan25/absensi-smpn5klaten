@@ -721,7 +721,7 @@ function exportToExcel() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  showToast("File Excel berwarna berhasil diunduh!", "success");
+  showToast("File Excel berhasil diunduh!", "success");
 }
 
 // ==========================================
