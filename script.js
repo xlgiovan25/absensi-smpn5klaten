@@ -629,59 +629,199 @@ function renderRekapTabel(list) {
   });
 }
 
+// ==========================================
+// EXPORT EXCEL DENGAN TAMPILAN BERWARNA SAMA PERSIS SEPERTI FOTO
+// ==========================================
 function exportToExcel() {
   if (!lastRekapData || lastRekapData.length === 0) return;
   
   const kelas = document.getElementById("rekap-kelas").value;
   const mapel = document.getElementById("rekap-mapel").value;
   const bulan = document.getElementById("rekap-bulan").value;
+  const guruNama = currentGuru ? currentGuru.namaGuru : "-";
 
-  const dataExcel = lastRekapData.map(s => ({
-    "NO": s.no,
-    "NIS": s.nomorInduk || "",
-    "NAMA SISWA": s.nama,
-    "TOTAL H": s.totalH,
-    "TOTAL S": s.totalS,
-    "TOTAL I": s.totalI,
-    "TOTAL A": s.totalA
-  }));
+  let tableHTML = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <!--[if gte mso 9]>
+      <xml>
+        <x:ExcelWorkbook>
+          <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
+              <x:Name>Rekap ${kelas}</x:Name>
+              <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+            </x:ExcelWorksheet>
+          </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+      </xml>
+      <![endif]-->
+      <meta charset="utf-8">
+      <style>
+        th, td { border: 1px solid #000000; padding: 5px 8px; font-family: Arial, sans-serif; font-size: 11px; }
+        .info-label { font-weight: bold; border: none; }
+        .info-val { border: none; }
+        .header-main { background-color: #305496; color: #ffffff; font-weight: bold; text-align: center; }
+        .header-h { background-color: #70ad47; color: #ffffff; font-weight: bold; text-align: center; } /* Hijau Hadir */
+        .header-s { background-color: #ed7d31; color: #ffffff; font-weight: bold; text-align: center; } /* Cokelat/Oranye Sakit */
+        .header-i { background-color: #ffc000; color: #000000; font-weight: bold; text-align: center; } /* Kuning Izin */
+        .header-a { background-color: #c00000; color: #ffffff; font-weight: bold; text-align: center; } /* Merah Alpha */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+      </style>
+    </head>
+    <body>
+      <table>
+        <tr><td class="info-label" style="border:none;">Mata Pelajaran</td><td class="info-val" colspan="6" style="border:none;">: ${mapel}</td></tr>
+        <tr><td class="info-label" style="border:none;">Kelas</td><td class="info-val" colspan="6" style="border:none;">: ${kelas}</td></tr>
+        <tr><td class="info-label" style="border:none;">Periode Bulan</td><td class="info-val" colspan="6" style="border:none;">: ${bulan}</td></tr>
+        <tr><td class="info-label" style="border:none;">Guru Pengampu</td><td class="info-val" colspan="6" style="border:none;">: ${guruNama}</td></tr>
+        <tr><td colspan="7" style="border:none;"></td></tr>
+        <thead>
+          <tr>
+            <th class="header-main">NO</th>
+            <th class="header-main">NIS</th>
+            <th class="header-main">NAMA SISWA</th>
+            <th class="header-h">HADIR (H)</th>
+            <th class="header-s">SAKIT (S)</th>
+            <th class="header-i">IZIN (I)</th>
+            <th class="header-a">ALPHA (A)</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
 
-  const worksheet = XLSX.utils.json_to_sheet(dataExcel);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, `Kelas ${kelas}`);
+  lastRekapData.forEach(s => {
+    tableHTML += `
+      <tr>
+        <td class="text-center">${s.no}</td>
+        <td class="text-center">${s.nomorInduk || "-"}</td>
+        <td class="text-left">${s.nama}</td>
+        <td class="text-center">${s.totalH}</td>
+        <td class="text-center">${s.totalS}</td>
+        <td class="text-center">${s.totalI}</td>
+        <td class="text-center">${s.totalA}</td>
+      </tr>
+    `;
+  });
 
-  XLSX.writeFile(workbook, `Rekap_Absensi_${kelas}_${mapel}_${bulan}.xlsx`);
-  showToast("File Excel berhasil diunduh!", "success");
+  tableHTML += `
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([tableHTML], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Rekap_Presensi_${kelas}_${mapel}_${bulan}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast("File Excel berwarna berhasil diunduh!", "success");
 }
 
+// ==========================================
+// DESAIN EXPORT PDF PROFESIONAL
+// ==========================================
 function exportToPDF() {
   if (!lastRekapData || lastRekapData.length === 0) return;
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
   const kelas = document.getElementById("rekap-kelas").value;
   const mapel = document.getElementById("rekap-mapel").value;
   const bulan = document.getElementById("rekap-bulan").value;
+  const guruNama = currentGuru ? currentGuru.namaGuru : "Guru Pengampu";
 
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(`LAPORAN REKAP PRESENSI - SMP NEGERI 5 KLATEN`, 14, 15);
-  doc.setFontSize(10);
-  doc.text(`Mata Pelajaran: ${mapel} | Kelas: ${kelas} | Periode: ${bulan}`, 14, 22);
+  doc.setTextColor(15, 23, 42); 
+  doc.text("SMP NEGERI 5 KLATEN", 14, 15);
+
+  doc.setFontSize(11);
+  doc.setTextColor(30, 41, 59);
+  doc.text("LAPORAN REKAPITULASI PRESENSI SISWA", 14, 21);
+
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.5);
+  doc.line(14, 24, 196, 24);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.setTextColor(71, 85, 105);
+
+  doc.text(`Mata Pelajaran : ${mapel}`, 14, 30);
+  doc.text(`Kelas                  : ${kelas}`, 14, 35);
+  doc.text(`Periode Bulan   : ${bulan}`, 120, 30);
+  doc.text(`Guru Pengampu : ${guruNama}`, 120, 35);
 
   const tableRows = lastRekapData.map(s => [
-    s.no, s.nomorInduk || "-", s.nama, s.totalH, s.totalS, s.totalI, s.totalA
+    s.no,
+    s.nomorInduk || "-",
+    s.nama,
+    s.totalH,
+    s.totalS,
+    s.totalI,
+    s.totalA
   ]);
 
   doc.autoTable({
-    startY: 28,
-    head: [["NO", "NIS", "NAMA SISWA", "TOTAL H", "TOTAL S", "TOTAL I", "TOTAL A"]],
+    startY: 40,
+    head: [["NO", "NIS", "NAMA SISWA", "HADIR (H)", "SAKIT (S)", "IZIN (I)", "ALPHA (A)"]],
     body: tableRows,
-    theme: "grid",
-    headStyles: { fillColor: [0, 32, 96] }
+    theme: "striped",
+    headStyles: {
+      fillColor: [15, 23, 42], 
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center",
+      fontSize: 9
+    },
+    bodyStyles: {
+      fontSize: 8.5,
+      textColor: [30, 41, 59]
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 10 },
+      1: { halign: "center", cellWidth: 25 },
+      2: { halign: "left" },
+      3: { halign: "center", cellWidth: 22 },
+      4: { halign: "center", cellWidth: 22 },
+      5: { halign: "center", cellWidth: 22 },
+      6: { halign: "center", cellWidth: 22 }
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
+    margin: { left: 14, right: 14 }
   });
 
-  doc.save(`Rekap_Absensi_${kelas}_${mapel}_${bulan}.pdf`);
+  const finalY = doc.lastAutoTable.finalY + 12;
+  const todayStr = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+
+  doc.setFontSize(9);
+  doc.setTextColor(30, 41, 59);
+  doc.text(`Klaten, ${todayStr}`, 140, finalY);
+  doc.text("Guru Pengampu Mata Pelajaran,", 140, finalY + 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.text(guruNama, 140, finalY + 24);
+
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Halaman ${i} dari ${pageCount}`, 196, 287, { align: "right" });
+  }
+
+  doc.save(`Rekap_Presensi_${kelas}_${mapel}_${bulan}.pdf`);
   showToast("File PDF berhasil diunduh!", "success");
 }
 
