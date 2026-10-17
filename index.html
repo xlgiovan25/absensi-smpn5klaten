@@ -33,22 +33,22 @@
       </div>
     </header>
 
-    <!-- NAVBAR DENGAN INTEGRASI PROFIL GURU -->
+    <!-- NAVBAR UTAMA (2 MENU UTAMA) -->
     <nav id="main-navbar" class="hidden bg-slate-900 border-b border-slate-800 px-3 sm:px-10 py-2.5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-white">
       
       <!-- NAVIGASI TAB UTAMA -->
       <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto order-2 sm:order-1">
         <button id="nav-absensi" onclick="switchNav('absensi')" 
-          class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5">
+          class="px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5">
           <span>📝 Absensi</span>
         </button>
         <button id="nav-rekap" onclick="switchNav('rekap')" 
-          class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
-          <span>📊 Rekap Bulanan</span>
+          class="px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
+          <span>📊 Rekap Absensi</span>
         </button>
       </div>
 
-      <!-- AREA PROFIL & AKSI GURU DI NAVBAR -->
+      <!-- AREA PROFIL -->
       <div class="flex items-center justify-between sm:justify-end gap-3 order-1 sm:order-2 border-b sm:border-b-0 border-slate-800 pb-2 sm:pb-0">
         <div class="flex items-center gap-2.5 min-w-0">
           <img id="foto-guru" src="" alt="Foto Guru" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-blue-500 shadow-md flex-shrink-0">
@@ -69,7 +69,7 @@
 
     <div class="p-3 sm:p-8 lg:p-10">
 
-      <!-- AUTHENTICATION SECTION (LOGIN & REGISTRASI) -->
+      <!-- AUTH SECTION -->
       <section id="auth-section" class="max-w-md mx-auto py-4 sm:py-6">
         <div class="text-center mb-5 sm:mb-6">
           <h2 class="text-lg sm:text-xl font-bold text-slate-800">Selamat Datang!</h2>
@@ -126,7 +126,7 @@
         </form>
       </section>
 
-      <!-- INPUT ABSENSI & JURNAL SECTION -->
+      <!-- INPUT ABSENSI SECTION -->
       <section id="absensi-section" class="hidden space-y-4 sm:space-y-6 fade-in">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
           
@@ -220,67 +220,157 @@
         </div>
       </section>
 
-      <!-- REKAP BULANAN SECTION -->
+      <!-- SECTION REKAP ABSENSI (BERISI SUB-TAB HARIAN & BULANAN) -->
       <section id="rekap-section" class="hidden space-y-4 sm:space-y-6 fade-in">
-        <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 space-y-4 sm:space-y-5 shadow-sm">
-          <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider border-b border-slate-200 pb-2 flex items-center gap-2">
-            <span>🔍</span> Filter Data Absen Bulanan
-          </h3>
-          
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
-            <div class="space-y-3.5">
-              <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
-                <select id="rekap-mapel" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm"></select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Bulan & Tahun</label>
-                <input type="month" id="rekap-bulan" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm">
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Tingkatan Kelas</label>
-              <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
-                <button type="button" onclick="pilihTingkatanRekap('7')" id="btn-rekap-tingkatan-7" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 7</button>
-                <button type="button" onclick="pilihTingkatanRekap('8')" id="btn-rekap-tingkatan-8" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 8</button>
-                <button type="button" onclick="pilihTingkatanRekap('9')" id="btn-rekap-tingkatan-9" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 9</button>
-              </div>
-
-              <div id="rekap-subkelas-container" class="hidden pt-1">
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Sub-Kelas (A - H)</label>
-                <div id="rekap-grid-abjad" class="grid grid-cols-4 gap-1.5"></div>
-              </div>
-              <input type="hidden" id="rekap-kelas" value="">
-            </div>
-          </div>
-
-          <button onclick="loadRekapBulanan()" id="btn-load-rekap" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-3.5 rounded-xl shadow-md transition text-sm">
-            Tampilkan Data Rekap Bulanan
+        
+        <!-- SUB-TAB SWITCHER REKAP -->
+        <div class="flex items-center justify-center p-1 bg-slate-200/80 rounded-2xl max-w-xs mx-auto border border-slate-300/60">
+          <button id="subtab-harian" onclick="switchSubTabRekap('harian')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-blue-700 shadow-sm">
+            📅 Rekap Harian
+          </button>
+          <button id="subtab-bulanan" onclick="switchSubTabRekap('bulanan')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-800">
+            📊 Rekap Bulanan
           </button>
         </div>
 
-        <div id="rekap-tabel-container" class="hidden space-y-4">
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-slate-100 p-3 sm:p-3.5 rounded-2xl border border-slate-200">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider text-center sm:text-left">Ekspor Laporan Rekap:</span>
-            <div class="grid grid-cols-2 gap-2 sm:flex items-center">
-              <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
-                📊 Excel
-              </button>
-              <button onclick="exportToPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
-                📄 PDF
-              </button>
+        <!-- FORM & TABEL REKAP HARIAN -->
+        <div id="subcontent-rekap-harian" class="space-y-4 sm:space-y-6">
+          <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 space-y-4 sm:space-y-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider border-b border-slate-200 pb-2 flex items-center gap-2">
+              <span>📅</span> Filter Presensi Harian
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
+              <div class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
+                  <select id="rekap-harian-mapel" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm"></select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Pilih Tanggal Presensi</label>
+                  <input type="date" id="rekap-harian-tanggal" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm">
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Tingkatan Kelas</label>
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  <button type="button" onclick="pilihTingkatanRekapHarian('7')" id="btn-rekap-harian-tingkatan-7" class="btn-rekap-harian-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 7</button>
+                  <button type="button" onclick="pilihTingkatanRekapHarian('8')" id="btn-rekap-harian-tingkatan-8" class="btn-rekap-harian-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 8</button>
+                  <button type="button" onclick="pilihTingkatanRekapHarian('9')" id="btn-rekap-harian-tingkatan-9" class="btn-rekap-harian-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 9</button>
+                </div>
+
+                <div id="rekap-harian-subkelas-container" class="hidden pt-1">
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Sub-Kelas (A - H)</label>
+                  <div id="rekap-harian-grid-abjad" class="grid grid-cols-4 gap-1.5"></div>
+                </div>
+                <input type="hidden" id="rekap-harian-kelas" value="">
+              </div>
             </div>
+
+            <button onclick="loadRekapHarian()" id="btn-load-rekap-harian" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-3.5 rounded-xl shadow-md transition text-sm">
+              Tampilkan Data Presensi Harian
+            </button>
           </div>
 
-          <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
-            <table id="rekap-table-el" class="w-full text-left text-xs border-collapse min-w-[500px]">
-              <thead id="rekap-thead" class="bg-slate-900 text-white font-bold uppercase"></thead>
-              <tbody id="rekap-tbody" class="divide-y divide-slate-100 bg-white"></tbody>
-            </table>
+          <div id="rekap-harian-tabel-container" class="hidden space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-slate-100 p-3 sm:p-3.5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider text-center sm:text-left">Ekspor Presensi Harian:</span>
+              <div class="grid grid-cols-2 gap-2 sm:flex items-center">
+                <button onclick="exportHarianToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                  📊 Excel
+                </button>
+                <button onclick="exportHarianToPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                  📄 PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-2xl text-xs space-y-1">
+              <p><strong>📖 Materi:</strong> <span id="info-harian-materi">-</span></p>
+              <p><strong>📝 Catatan:</strong> <span id="info-harian-catatan">-</span></p>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
+              <table class="w-full text-left text-xs border-collapse min-w-[400px]">
+                <thead class="bg-slate-900 text-white font-bold uppercase">
+                  <tr>
+                    <th class="p-2.5 text-center w-10">No</th>
+                    <th class="p-2.5 w-24">NIS</th>
+                    <th class="p-2.5">Nama Siswa</th>
+                    <th class="p-2.5 text-center w-28">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rekap-harian-tbody" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        <!-- FORM & TABEL REKAP BULANAN -->
+        <div id="subcontent-rekap-bulanan" class="hidden space-y-4 sm:space-y-6">
+          <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 space-y-4 sm:space-y-5 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-wider border-b border-slate-200 pb-2 flex items-center gap-2">
+              <span>📊</span> Filter Data Absen Bulanan
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
+              <div class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
+                  <select id="rekap-mapel" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm"></select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Bulan & Tahun</label>
+                  <input type="month" id="rekap-bulan" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm bg-white font-semibold text-slate-700 shadow-sm">
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Tingkatan Kelas</label>
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  <button type="button" onclick="pilihTingkatanRekap('7')" id="btn-rekap-tingkatan-7" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 7</button>
+                  <button type="button" onclick="pilihTingkatanRekap('8')" id="btn-rekap-tingkatan-8" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 8</button>
+                  <button type="button" onclick="pilihTingkatanRekap('9')" id="btn-rekap-tingkatan-9" class="btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm">Kelas 9</button>
+                </div>
+
+                <div id="rekap-subkelas-container" class="hidden pt-1">
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Sub-Kelas (A - H)</label>
+                  <div id="rekap-grid-abjad" class="grid grid-cols-4 gap-1.5"></div>
+                </div>
+                <input type="hidden" id="rekap-kelas" value="">
+              </div>
+            </div>
+
+            <button onclick="loadRekapBulanan()" id="btn-load-rekap" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-3.5 rounded-xl shadow-md transition text-sm">
+              Tampilkan Data Rekap Bulanan
+            </button>
+          </div>
+
+          <div id="rekap-tabel-container" class="hidden space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-slate-100 p-3 sm:p-3.5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider text-center sm:text-left">Ekspor Laporan Rekap Bulanan:</span>
+              <div class="grid grid-cols-2 gap-2 sm:flex items-center">
+                <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                  📊 Excel
+                </button>
+                <button onclick="exportToPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                  📄 PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
+              <table id="rekap-table-el" class="w-full text-left text-xs border-collapse min-w-[500px]">
+                <thead id="rekap-thead" class="bg-slate-900 text-white font-bold uppercase"></thead>
+                <tbody id="rekap-tbody" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </section>
 
     </div>
