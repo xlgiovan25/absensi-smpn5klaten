@@ -1,9 +1,11 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgwOhy_5bJDX5LcCX9oJM4W-5LKslurWph7D0yJqSQw8aKWDxFXZ4WCXbDKc08V-Rc/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhlS8FZE-KE8B4gT948izOl7UVa5L-etL1PUrVZBsADHvDcSMqzR00Df5JwE5qgHnm/exec";
 
 let currentGuru = null;
 let currentSiswaData = [];
 let tempMapelList = []; 
 let tempRegMapelList = []; 
+let lastRekapHarianData = [];
+let lastRekapData = [];
 
 function showToast(message, type = "success") {
   const container = document.getElementById("toast-container");
@@ -117,6 +119,7 @@ async function handleLogin(e) {
       const today = new Date().toISOString().split("T")[0];
       document.getElementById("tanggal").value = today;
       document.getElementById("rekap-bulan").value = today.slice(0, 7);
+      document.getElementById("rekap-harian-tanggal").value = today;
     } else {
       showToast(data.message || "Email atau password salah!", "error");
     }
@@ -352,32 +355,63 @@ async function simpanEditProfil() {
 function populateMapelSelect(list) {
   const selAbsensi = document.getElementById("select-mapel");
   const selRekap = document.getElementById("rekap-mapel");
+  const selRekapHarian = document.getElementById("rekap-harian-mapel");
   
   selAbsensi.innerHTML = "";
   selRekap.innerHTML = "";
+  selRekapHarian.innerHTML = "";
 
   list.forEach(m => {
     selAbsensi.add(new Option(m, m));
     selRekap.add(new Option(m, m));
+    selRekapHarian.add(new Option(m, m));
   });
 }
 
+// LOGIKA PILIH NAVBAR UTAMA (2 MENU)
 function switchNav(nav) {
   const btnAbs = document.getElementById("nav-absensi");
   const btnRek = document.getElementById("nav-rekap");
+  
   const secAbs = document.getElementById("absensi-section");
   const secRek = document.getElementById("rekap-section");
 
+  const activeStyle = "px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5";
+  const inactiveStyle = "px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center gap-1.5";
+
+  btnAbs.className = inactiveStyle;
+  btnRek.className = inactiveStyle;
+
+  secAbs.classList.add("hidden");
+  secRek.classList.add("hidden");
+
   if (nav === "absensi") {
-    btnAbs.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5";
-    btnRek.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center gap-1.5";
+    btnAbs.className = activeStyle;
     secAbs.classList.remove("hidden");
-    secRek.classList.add("hidden");
   } else {
-    btnRek.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-1.5";
-    btnAbs.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition flex items-center justify-center gap-1.5";
+    btnRek.className = activeStyle;
     secRek.classList.remove("hidden");
-    secAbs.classList.add("hidden");
+  }
+}
+
+// LOGIKA PILIH SUB-TAB PADA MENU REKAP ABSENSI
+function switchSubTabRekap(sub) {
+  const btnHarian = document.getElementById("subtab-harian");
+  const btnBulanan = document.getElementById("subtab-bulanan");
+  
+  const contentHarian = document.getElementById("subcontent-rekap-harian");
+  const contentBulanan = document.getElementById("subcontent-rekap-bulanan");
+
+  if (sub === "harian") {
+    btnHarian.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-blue-700 shadow-sm";
+    btnBulanan.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
+    contentHarian.classList.remove("hidden");
+    contentBulanan.classList.add("hidden");
+  } else {
+    btnBulanan.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-blue-700 shadow-sm";
+    btnHarian.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
+    contentBulanan.classList.remove("hidden");
+    contentHarian.classList.add("hidden");
   }
 }
 
@@ -527,6 +561,271 @@ async function kirimAbsensi() {
   }
 }
 
+function pilihTingkatanRekapHarian(tingkat) {
+  document.querySelectorAll(".btn-rekap-harian-tingkatan").forEach(b => {
+    b.className = "btn-rekap-harian-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm";
+  });
+  document.getElementById(`btn-rekap-harian-tingkatan-${tingkat}`).className = "btn-rekap-harian-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 text-white shadow-md transition";
+
+  const grid = document.getElementById("rekap-harian-grid-abjad");
+  grid.innerHTML = "";
+  const abjad = ["A", "B", "C", "D", "E", "F", "G", "H"];
+
+  abjad.forEach(a => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "py-1.5 sm:py-2 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-blue-50 transition shadow-sm";
+    btn.innerText = `${tingkat}${a}`;
+    btn.onclick = () => pilihKelasRekapHarianFull(`${tingkat}${a}`, btn);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById("rekap-harian-subkelas-container").classList.remove("hidden");
+}
+
+function pilihKelasRekapHarianFull(kelas, btnEl) {
+  document.querySelectorAll("#rekap-harian-grid-abjad button").forEach(b => {
+    b.className = "py-1.5 sm:py-2 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-blue-50 transition shadow-sm";
+  });
+  btnEl.className = "py-1.5 sm:py-2 rounded-lg text-xs font-bold bg-blue-700 text-white shadow-md transition";
+  document.getElementById("rekap-harian-kelas").value = kelas;
+}
+
+async function loadRekapHarian() {
+  const mapel = document.getElementById("rekap-harian-mapel").value;
+  const tanggal = document.getElementById("rekap-harian-tanggal").value;
+  const kelas = document.getElementById("rekap-harian-kelas").value;
+  const btn = document.getElementById("btn-load-rekap-harian");
+  const container = document.getElementById("rekap-harian-tabel-container");
+
+  if (!tanggal || !kelas) {
+    showToast("Pilih kelas dan tanggal terlebih dahulu!", "error");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Memuat data presensi harian...";
+
+  try {
+    const url = `${SCRIPT_URL}?action=getRekapHarian&spreadsheetIdGuru=${currentGuru.spreadsheetIdGuru}&kelas=${encodeURIComponent(kelas)}&mapel=${encodeURIComponent(mapel)}&tanggal=${encodeURIComponent(tanggal)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === "success") {
+      lastRekapHarianData = data.siswa;
+      document.getElementById("info-harian-materi").innerText = data.materi || "-";
+      document.getElementById("info-harian-catatan").innerText = data.catatan || "-";
+      
+      renderRekapHarianTabel(data.siswa);
+      container.classList.remove("hidden");
+      showToast("Presensi harian berhasil dimuat!", "success");
+    } else {
+      showToast(data.message || "Data presensi harian tidak ditemukan!", "info");
+      container.classList.add("hidden");
+    }
+  } catch (err) {
+    showToast("Gagal memuat rekap harian!", "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Tampilkan Data Presensi Harian";
+  }
+}
+
+function renderRekapHarianTabel(list) {
+  const tbody = document.getElementById("rekap-harian-tbody");
+  tbody.innerHTML = "";
+
+  list.forEach((s, idx) => {
+    const tr = document.createElement("tr");
+    tr.className = "hover:bg-slate-50 transition border-b border-slate-100 font-medium";
+    
+    let stBg = "bg-slate-100 text-slate-700";
+    if (s.status === "H") stBg = "bg-emerald-100 text-emerald-800 font-bold";
+    else if (s.status === "S") stBg = "bg-amber-100 text-amber-800 font-bold";
+    else if (s.status === "I") stBg = "bg-blue-100 text-blue-800 font-bold";
+    else if (s.status === "A") stBg = "bg-rose-100 text-rose-800 font-bold";
+
+    tr.innerHTML = `
+      <td class="p-2.5 text-center font-bold text-slate-500">${idx + 1}</td>
+      <td class="p-2.5 text-slate-600">${s.nomorInduk || "-"}</td>
+      <td class="p-2.5 font-bold text-slate-800">${s.nama}</td>
+      <td class="p-2.5 text-center"><span class="px-2.5 py-1 rounded-lg text-xs ${stBg}">${s.status}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportHarianToExcel() {
+  if (!lastRekapHarianData || lastRekapHarianData.length === 0) return;
+  
+  const kelas = document.getElementById("rekap-harian-kelas").value;
+  const mapel = document.getElementById("rekap-harian-mapel").value;
+  const tanggal = document.getElementById("rekap-harian-tanggal").value;
+  const materi = document.getElementById("info-harian-materi").innerText;
+  const catatan = document.getElementById("info-harian-catatan").innerText;
+  const guruNama = currentGuru ? currentGuru.namaGuru : "-";
+
+  let tableHTML = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="utf-8">
+      <style>
+        th, td { border: 1px solid #000000; padding: 5px 8px; font-family: Arial, sans-serif; font-size: 11px; }
+        .info-label { font-weight: bold; border: none; }
+        .info-val { border: none; }
+        .header-main { background-color: #305496; color: #ffffff; font-weight: bold; text-align: center; }
+        .st-h { background-color: #d9ead3; color: #274e13; font-weight: bold; text-align: center; }
+        .st-s { background-color: #fff2cc; color: #7f6000; font-weight: bold; text-align: center; }
+        .st-i { background-color: #c9daf8; color: #1c4587; font-weight: bold; text-align: center; }
+        .st-a { background-color: #fce5cd; color: #783f04; font-weight: bold; text-align: center; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+      </style>
+    </head>
+    <body>
+      <table>
+        <tr><td class="info-label" style="border:none;">Mata Pelajaran</td><td class="info-val" colspan="3" style="border:none;">: ${mapel}</td></tr>
+        <tr><td class="info-label" style="border:none;">Kelas</td><td class="info-val" colspan="3" style="border:none;">: ${kelas}</td></tr>
+        <tr><td class="info-label" style="border:none;">Tanggal</td><td class="info-val" colspan="3" style="border:none;">: ${tanggal}</td></tr>
+        <tr><td class="info-label" style="border:none;">Guru Pengampu</td><td class="info-val" colspan="3" style="border:none;">: ${guruNama}</td></tr>
+        <tr><td class="info-label" style="border:none;">Materi</td><td class="info-val" colspan="3" style="border:none;">: ${materi}</td></tr>
+        <tr><td class="info-label" style="border:none;">Catatan</td><td class="info-val" colspan="3" style="border:none;">: ${catatan}</td></tr>
+        <tr><td colspan="4" style="border:none;"></td></tr>
+        <thead>
+          <tr>
+            <th class="header-main">NO</th>
+            <th class="header-main">NIS</th>
+            <th class="header-main">NAMA SISWA</th>
+            <th class="header-main">STATUS PRESENSI</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  lastRekapHarianData.forEach(s => {
+    let stClass = "text-center";
+    if (s.status === "H") stClass = "st-h";
+    else if (s.status === "S") stClass = "st-s";
+    else if (s.status === "I") stClass = "st-i";
+    else if (s.status === "A") stClass = "st-a";
+
+    tableHTML += `
+      <tr>
+        <td class="text-center">${s.no}</td>
+        <td class="text-center">${s.nomorInduk || "-"}</td>
+        <td class="text-left">${s.nama}</td>
+        <td class="${stClass}">${s.status}</td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([tableHTML], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Presensi_Harian_${kelas}_${mapel}_${tanggal}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast("File Excel harian berhasil diunduh!", "success");
+}
+
+function exportHarianToPDF() {
+  if (!lastRekapHarianData || lastRekapHarianData.length === 0) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+  const kelas = document.getElementById("rekap-harian-kelas").value;
+  const mapel = document.getElementById("rekap-harian-mapel").value;
+  const tanggal = document.getElementById("rekap-harian-tanggal").value;
+  const materi = document.getElementById("info-harian-materi").innerText;
+  const catatan = document.getElementById("info-harian-catatan").innerText;
+  const guruNama = currentGuru ? currentGuru.namaGuru : "Guru Pengampu";
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(15, 23, 42); 
+  doc.text("SMP NEGERI 5 KLATEN", 14, 15);
+
+  doc.setFontSize(11);
+  doc.setTextColor(30, 41, 59);
+  doc.text("LAPORAN PRESENSI & JURNAL HARIAN", 14, 21);
+
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.5);
+  doc.line(14, 24, 196, 24);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.setTextColor(71, 85, 105);
+
+  doc.text(`Mata Pelajaran : ${mapel}`, 14, 30);
+  doc.text(`Kelas                  : ${kelas}`, 14, 35);
+  doc.text(`Tanggal              : ${tanggal}`, 120, 30);
+  doc.text(`Guru Pengampu : ${guruNama}`, 120, 35);
+  doc.text(`Materi                : ${materi}`, 14, 40);
+  doc.text(`Catatan              : ${catatan}`, 14, 45);
+
+  const tableRows = lastRekapHarianData.map(s => [
+    s.no,
+    s.nomorInduk || "-",
+    s.nama,
+    s.status
+  ]);
+
+  doc.autoTable({
+    startY: 50,
+    head: [["NO", "NIS", "NAMA SISWA", "STATUS"]],
+    body: tableRows,
+    theme: "striped",
+    headStyles: {
+      fillColor: [15, 23, 42], 
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center",
+      fontSize: 9
+    },
+    bodyStyles: {
+      fontSize: 8.5,
+      textColor: [30, 41, 59]
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 15 },
+      1: { halign: "center", cellWidth: 35 },
+      2: { halign: "left" },
+      3: { halign: "center", cellWidth: 30 }
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
+    margin: { left: 14, right: 14 }
+  });
+
+  const finalY = doc.lastAutoTable.finalY + 12;
+  const todayStr = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+
+  doc.setFontSize(9);
+  doc.setTextColor(30, 41, 59);
+  doc.text(`Klaten, ${todayStr}`, 140, finalY);
+  doc.text("Guru Pengampu Mata Pelajaran,", 140, finalY + 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.text(guruNama, 140, finalY + 24);
+
+  doc.save(`Presensi_Harian_${kelas}_${mapel}_${tanggal}.pdf`);
+  showToast("File PDF harian berhasil diunduh!", "success");
+}
+
 function pilihTingkatanRekap(tingkat) {
   document.querySelectorAll(".btn-rekap-tingkatan").forEach(b => {
     b.className = "btn-rekap-tingkatan py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white border border-slate-300 text-slate-700 hover:bg-blue-50 transition shadow-sm";
@@ -556,8 +855,6 @@ function pilihKelasRekapFull(kelas, btnEl) {
   btnEl.className = "py-1.5 sm:py-2 rounded-lg text-xs font-bold bg-blue-700 text-white shadow-md transition";
   document.getElementById("rekap-kelas").value = kelas;
 }
-
-let lastRekapData = [];
 
 async function loadRekapBulanan() {
   const mapel = document.getElementById("rekap-mapel").value;
@@ -629,9 +926,6 @@ function renderRekapTabel(list) {
   });
 }
 
-// ==========================================
-// EXPORT EXCEL DENGAN TAMPILAN BERWARNA SAMA PERSIS SEPERTI FOTO
-// ==========================================
 function exportToExcel() {
   if (!lastRekapData || lastRekapData.length === 0) return;
   
@@ -643,28 +937,16 @@ function exportToExcel() {
   let tableHTML = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
-      <!--[if gte mso 9]>
-      <xml>
-        <x:ExcelWorkbook>
-          <x:ExcelWorksheets>
-            <x:ExcelWorksheet>
-              <x:Name>Rekap ${kelas}</x:Name>
-              <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-            </x:ExcelWorksheet>
-          </x:ExcelWorksheets>
-        </x:ExcelWorkbook>
-      </xml>
-      <![endif]-->
       <meta charset="utf-8">
       <style>
         th, td { border: 1px solid #000000; padding: 5px 8px; font-family: Arial, sans-serif; font-size: 11px; }
         .info-label { font-weight: bold; border: none; }
         .info-val { border: none; }
         .header-main { background-color: #305496; color: #ffffff; font-weight: bold; text-align: center; }
-        .header-h { background-color: #70ad47; color: #ffffff; font-weight: bold; text-align: center; } /* Hijau Hadir */
-        .header-s { background-color: #ed7d31; color: #ffffff; font-weight: bold; text-align: center; } /* Cokelat/Oranye Sakit */
-        .header-i { background-color: #ffc000; color: #000000; font-weight: bold; text-align: center; } /* Kuning Izin */
-        .header-a { background-color: #c00000; color: #ffffff; font-weight: bold; text-align: center; } /* Merah Alpha */
+        .header-h { background-color: #70ad47; color: #ffffff; font-weight: bold; text-align: center; }
+        .header-s { background-color: #ed7d31; color: #ffffff; font-weight: bold; text-align: center; }
+        .header-i { background-color: #ffc000; color: #000000; font-weight: bold; text-align: center; }
+        .header-a { background-color: #c00000; color: #ffffff; font-weight: bold; text-align: center; }
         .text-center { text-align: center; }
         .text-left { text-align: left; }
       </style>
@@ -724,9 +1006,6 @@ function exportToExcel() {
   showToast("File Excel berhasil diunduh!", "success");
 }
 
-// ==========================================
-// DESAIN EXPORT PDF PROFESIONAL
-// ==========================================
 function exportToPDF() {
   if (!lastRekapData || lastRekapData.length === 0) return;
 
